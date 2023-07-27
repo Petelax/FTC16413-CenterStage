@@ -1,3 +1,6 @@
+## FTC 16413 CenterStage
+In the pre-season for FTC CenterStage, we have built a swerve drivebase and plan to use a similar design for the upcoming season. All of the user-written code is in Kotlin and we are implementing most of the same libraries as last year, but with a new structure based on WPIlib. This repository is mostly just a technical challenge for our build team and our programmers to sharpen their skills.
+
 ## NOTICE
 
 This repository contains the public FTC SDK for the POWERPLAY (2022-2023) competition season.
