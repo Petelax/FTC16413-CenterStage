@@ -22,7 +22,7 @@ class DrivebaseConstants {
         const val RR_ENCODER = "encoderRR"
     }
     object TurnPIDConstants {
-        const val kP = 0.003
+        const val kP = 0.005
         const val kI = 0.0
         const val kD = 0.0
     }

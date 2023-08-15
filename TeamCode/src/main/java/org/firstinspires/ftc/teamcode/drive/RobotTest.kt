@@ -12,19 +12,16 @@ class RobotTest: OpMode() {
 
     override fun init() {
         robot = Robot(this)
-        robot.reset()
-        robot.enabled = true
 
     }
 
     override fun loop() {
         val x = gamepad1.left_stick_x.toDouble()
         val y = -1.0*gamepad1.left_stick_y.toDouble()
-        val angle: Double = (atan2(y, x) * 180.0 / PI)
-        robot.drive(gamepad1.right_stick_x.toDouble(), angle)
-        //robot.spin(gamepad1.left_stick_x.toDouble())
+        val angle: Double = (atan2(y, x) * 180.0 / PI) - 90.0
+        //robot.translate(angle, gamepad1.right_stick_y.toDouble())
+        robot.turnInplace(gamepad1.left_stick_x.toDouble())
 
         robot.status()
-        robot.update()
     }
 }

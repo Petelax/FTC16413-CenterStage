@@ -1,26 +1,15 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.arcrobotics.ftclib.hardware.GyroEx
 import com.arcrobotics.ftclib.hardware.RevIMU
 import com.qualcomm.robotcore.hardware.HardwareMap
-import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 
 class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
-    private lateinit var swerveLF: SwerveModule
-    private lateinit var swerveRF: SwerveModule
-    private lateinit var swerveLR: SwerveModule
-    private lateinit var swerveRR: SwerveModule
-    private lateinit var gyro: RevIMU
-    var enabled = true
-        set(value) {
-            field = value
-            swerveLF.enabled = value
-            swerveRF.enabled = value
-            swerveLR.enabled = value
-            swerveRR.enabled = value
-
-        }
+    private var swerveLF: SwerveModule
+    private var swerveRF: SwerveModule
+    private var swerveLR: SwerveModule
+    private var swerveRR: SwerveModule
+    private var gyro: RevIMU
 
     init {
         val IDs = DrivebaseConstants.DeviceIDs
@@ -38,12 +27,7 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
     /**
      * Translate drivebase
      */
-    fun translate(speed: Double, angle: Double) {
-        swerveLF.override = false
-        swerveRF.override = false
-        swerveLR.override = false
-        swerveRR.override = false
-
+    fun translate(angle: Double, speed: Double) {
         swerveLF.setAngle(angle)
         swerveRF.setAngle(angle)
         swerveLR.setAngle(angle)
@@ -55,59 +39,27 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
         swerveRR.setSpeed(speed)
     }
 
-    fun spin(speed: Double) {
-        swerveLF.override = true
-        swerveRF.override = true
-        swerveLR.override = true
-        swerveRR.override = true
+    fun turnInplace(speed: Double) {
+        swerveLF.setAngle(45.0)
+        swerveRF.setAngle(135.0)
+        swerveLR.setAngle(-45.0)
+        swerveRR.setAngle(-135.0)
 
-        swerveLF.setAngle(0.0)
-        swerveRF.setAngle(0.0)
-        swerveLR.setAngle(0.0)
-        swerveRR.setAngle(0.0)
+        swerveLF.setSpeed(speed)
+        swerveRF.setSpeed(speed)
+        swerveLR.setSpeed(speed)
+        swerveRR.setSpeed(speed)
 
-        swerveLF.setOverrideTurnSpeed(speed)
-        swerveRF.setOverrideTurnSpeed(speed)
-        swerveLR.setOverrideTurnSpeed(speed)
-        swerveRR.setOverrideTurnSpeed(speed)
-
-        swerveLF.setSpeed(0.0)
-        swerveRF.setSpeed(0.0)
-        swerveLR.setSpeed(0.0)
-        swerveRR.setSpeed(0.0)
     }
 
-    fun spinAbsolute(angle: Double) {
-        swerveLF.setAbsoluteAngle(angle)
-        swerveRF.setAbsoluteAngle(angle)
-        swerveLR.setAbsoluteAngle(angle)
-        swerveRR.setAbsoluteAngle(angle)
-
-        swerveLF.setSpeed(0.0)
-        swerveRF.setSpeed(0.0)
-        swerveLR.setSpeed(0.0)
-        swerveRR.setSpeed(0.0)
-    }
-
-    fun reset() {
-        swerveLF.setAngle(0.0)
-        swerveRF.setAngle(0.0)
-        swerveLR.setAngle(0.0)
-        swerveRR.setAngle(0.0)
-
-        swerveLF.setSpeed(0.0)
-        swerveRF.setSpeed(0.0)
-        swerveLR.setSpeed(0.0)
-        swerveRR.setSpeed(0.0)
-    }
 
     fun status(): String {
-        val LF = "angle: " + swerveLF.getAngle().toString() + ", desiredAngle: " + swerveLF.getDesiredAngle().toString() + ", speed: " + swerveLF.getSpeed().toString() + ", turnPower: " + swerveLF.getTurnPower().toString()
-        val RF = "angle: " + swerveRF.getAngle().toString() + ", desiredAngle: " + swerveLF.getDesiredAngle().toString() + ", speed: " + swerveRF.getSpeed().toString() + ", turnPower: " + swerveRF.getTurnPower().toString()
-        val LR = "angle: " + swerveLR.getAngle().toString() + ", desiredAngle: " + swerveLF.getDesiredAngle().toString() + ", speed: " + swerveLR.getSpeed().toString() + ", turnPower: " + swerveLR.getTurnPower().toString()
-        val RR = "angle: " + swerveRR.getAngle().toString() + ", desiredAngle: " + swerveLF.getDesiredAngle().toString() + ", speed: " + swerveRR.getSpeed().toString() + ", turnPower: " + swerveRR.getTurnPower().toString()
+        val lf = "angle: " + swerveLF.getAngle().toString() + ", desiredAngle: " + swerveLF.getDesiredAngle().toString() + ", speed: " + swerveLF.getSpeed().toString() + ", turnPower: " + swerveLF.getTurnPower().toString()
+        val rf = "angle: " + swerveRF.getAngle().toString() + ", desiredAngle: " + swerveLF.getDesiredAngle().toString() + ", speed: " + swerveRF.getSpeed().toString() + ", turnPower: " + swerveRF.getTurnPower().toString()
+        val lr = "angle: " + swerveLR.getAngle().toString() + ", desiredAngle: " + swerveLF.getDesiredAngle().toString() + ", speed: " + swerveLR.getSpeed().toString() + ", turnPower: " + swerveLR.getTurnPower().toString()
+        val rr = "angle: " + swerveRR.getAngle().toString() + ", desiredAngle: " + swerveLF.getDesiredAngle().toString() + ", speed: " + swerveRR.getSpeed().toString() + ", turnPower: " + swerveRR.getTurnPower().toString()
 
-        val status = LF + "\n" + RF + "\n" + LR + "\n" + RR
+        val status = lf + "\n" + rf + "\n" + lr + "\n" + rr
 
         return status
     }
@@ -116,13 +68,4 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
         return gyro.heading
     }
 
-    /**
-     * Update drivebase motors
-     */
-    fun update() {
-        swerveLF.update()
-        swerveRF.update()
-        swerveLR.update()
-        swerveRR.update()
-    }
 }
