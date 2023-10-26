@@ -56,15 +56,26 @@ class ServoTest: OpMode() {
         telemetry.addData("power", power)
 
         if (gamepad1.x) { servoLF.power = power; telemetry.addLine("servoLF") } else { servoLF.power = 0.0 }
-        if (gamepad1.y) { servoRF.power = power; telemetry.addLine("servoRF") } else { servoLF.power = 0.0 }
-        if (gamepad1.a) { servoLR.power = power; telemetry.addLine("servoLR") } else { servoLF.power = 0.0 }
-        if (gamepad1.b) { servoRR.power = power; telemetry.addLine("servoRR") } else { servoLF.power = 0.0 }
+        if (gamepad1.y) { servoRF.power = power; telemetry.addLine("servoRF") } else { servoRF.power = 0.0 }
+        if (gamepad1.a) { servoLR.power = power; telemetry.addLine("servoLR") } else { servoLR.power = 0.0 }
+        if (gamepad1.b) { servoRR.power = power; telemetry.addLine("servoRR") } else { servoRR.power = 0.0 }
 
         if (gamepad1.dpad_up) { motorLF.power = power; telemetry.addLine("motorLF") } else { motorLF.power = 0.0 }
-        if (gamepad1.dpad_left) { motorRF.power = power; telemetry.addLine("motorRF") } else { motorLF.power = 0.0 }
-        if (gamepad1.dpad_down) { motorLR.power = power; telemetry.addLine("motorLR") } else { motorLF.power = 0.0 }
-        if (gamepad1.dpad_right) { motorRR.power = power; telemetry.addLine("motorRR") } else { motorLF.power = 0.0 }
+        if (gamepad1.dpad_left) { motorRF.power = power; telemetry.addLine("motorRF") } else { motorRF.power = 0.0 }
+        if (gamepad1.dpad_down) { motorLR.power = power; telemetry.addLine("motorLR") } else { motorLR.power = 0.0 }
+        if (gamepad1.dpad_right) { motorRR.power = power; telemetry.addLine("motorRR") } else { motorRR.power = 0.0 }
 
+        /*
+        x = LF
+        y = RF
+        a = LR
+        b = RR
+
+        up = LF
+        left = RF
+        down = LR
+        right = RR
+         */
 
     }
 }

@@ -25,12 +25,14 @@ class SwerveModuleTest: OpMode() {
 
         LF.setAngle(angle)
         LF.setSpeed(gamepad1.right_stick_y.toDouble())
+        LF.update()
         //LF.setAbsoluteAngle(0.0)
         telemetry.addLine("LF")
-        telemetry.addData("desiredAngle", LF.getDesiredAngle())
-        telemetry.addData("currentAngle", LF.getAngle())
-        telemetry.addData("turnPower", LF.getTurnPower())
-        telemetry.addData("drivePower", LF.getSpeed())
+        telemetry.addData("sentAngle", "%.3f".format(angle))
+        telemetry.addData("desiredAngle", "%.3f".format(LF.getDesiredAngle()))
+        telemetry.addData("currentAngle", "%.3f".format(LF.getAngle()))
+        telemetry.addData("turnPower", "%.3f".format(LF.getTurnPower()))
+        telemetry.addData("drivePower", "%.3f".format(LF.getSpeed()))
         telemetry.update()
     }
 }
