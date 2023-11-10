@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.drive
 
-import android.os.Environment
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.config.Config
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
@@ -9,17 +8,11 @@ import com.arcrobotics.ftclib.kinematics.DifferentialOdometry
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.util.ElapsedTime
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
-import org.firstinspires.ftc.teamcode.subsystems.Drivebase
 import org.firstinspires.ftc.teamcode.subsystems.SwerveDrivebase
-import java.io.File
 import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.math.PI
-import kotlin.math.atan2
-import kotlin.math.exp
-import kotlin.math.hypot
 
 @Config
 @TeleOp

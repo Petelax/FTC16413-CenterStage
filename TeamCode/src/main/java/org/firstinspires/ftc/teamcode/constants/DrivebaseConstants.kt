@@ -33,6 +33,7 @@ class DrivebaseConstants {
 
     /**
      * measured in inches
+     * (im lying some are meters or mm or god knows what)
      */
     object Measurements {
         const val PI = 3.1415926535897932384626433832795028841971693993751058209
@@ -51,10 +52,11 @@ class DrivebaseConstants {
         val LR_POS = Translation2d(-k/2, j/2)
         val RR_POS = Translation2d(-k/2, -j/2)
 
-        val LF_OFFSET = -1.04
-        val RF_OFFSET = -0.70
-        val LR_OFFSET = -1.10
-        val RR_OFFSET = -0.125
+        const val LF_OFFSET = -1.175
+        const val RF_OFFSET = -0.23
+        const val LR_OFFSET = -0.98
+        const val RR_OFFSET = -1.85
+
 
     }
 }

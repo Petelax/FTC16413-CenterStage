@@ -1,14 +1,15 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import android.R
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
+import com.arcrobotics.ftclib.geometry.Vector2d
 import com.arcrobotics.ftclib.hardware.RevIMU
 import com.arcrobotics.ftclib.hardware.motors.Motor.Encoder
 import com.arcrobotics.ftclib.kinematics.DifferentialOdometry
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
+import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity
@@ -18,7 +19,6 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.hypot
-import kotlin.math.max
 import kotlin.math.sign
 
 
@@ -45,8 +45,16 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
     private var R: Double = 0.0
     private var maintainHeading: Boolean = false
 
+    private lateinit var hubs: List<LynxModule>
+
     init {
         val IDs = DrivebaseConstants.DeviceIDs
+
+        hubs = hardwareMap.getAll(LynxModule::class.java)
+
+        for (hub: LynxModule in hubs) {
+            hub.bulkCachingMode = LynxModule.BulkCachingMode.AUTO
+        }
 
         gyro = RevIMU(hardwareMap)
         gyro.init()
@@ -54,7 +62,7 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
 
         swerveLF = SwerveModule(hardwareMap, IDs.LF_DRIVE_MOTOR, IDs.LF_TURN_MOTOR, IDs.LF_ENCODER, DrivebaseConstants.Measurements.LF_OFFSET, direction = DcMotorSimple.Direction.FORWARD)
         swerveRF = SwerveModule(hardwareMap, IDs.RF_DRIVE_MOTOR, IDs.RF_TURN_MOTOR, IDs.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET)
-        swerveLR = SwerveModule(hardwareMap, IDs.LR_DRIVE_MOTOR, IDs.LR_TURN_MOTOR, IDs.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET)
+        swerveLR = SwerveModule(hardwareMap, IDs.LR_DRIVE_MOTOR, IDs.LR_TURN_MOTOR, IDs.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET, direction = DcMotorSimple.Direction.FORWARD)
         swerveRR = SwerveModule(hardwareMap, IDs.RR_DRIVE_MOTOR, IDs.RR_TURN_MOTOR, IDs.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
 
         encoderLeft = swerveLR.getDriveEncoder()
@@ -96,6 +104,31 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
         swerveRR.setSwerveModuleState(moduleStates[3])
     }
 
+    fun fieldCentricDrive(strafeSpeed: Double, forwardSpeed: Double, turnSpeed: Double) {
+        val heading = gyro.heading
+        val vx = MathUtil.clamp(strafeSpeed,-1.0, 1.0)
+        val vy = MathUtil.clamp(forwardSpeed,-1.0, 1.0)
+        var omega = MathUtil.clamp(turnSpeed,-1.0, 1.0)
+
+        if (vx < 0.001 && vy < 0.001) {
+            omega *= 2
+        }
+
+        val input = Vector2d(vx, vy).rotateBy(-heading)
+
+        val speeds = ChassisSpeeds(
+            input.x*DrivebaseConstants.Measurements.MAX_VELOCITY,
+            input.y*DrivebaseConstants.Measurements.MAX_VELOCITY,
+            omega*DrivebaseConstants.Measurements.MAX_ANGULAR_VELOCITY)
+
+        val moduleStates: Array<SwerveModuleState> = kinematics.toSwerveModuleStates(speeds)
+        //SwerveDriveKinematics.normalizeWheelSpeeds(moduleStates, DrivebaseConstants.Measurements.MAX_VELOCITY)
+        swerveLF.setSwerveModuleState(moduleStates[0])
+        swerveRF.setSwerveModuleState(moduleStates[1])
+        swerveLR.setSwerveModuleState(moduleStates[2])
+        swerveRR.setSwerveModuleState(moduleStates[3])
+    }
+
     /**
      * This is brand new and completely untested, ignore
      */
@@ -122,6 +155,7 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
     /**
      * This is brand new and completely untested, ignore
      */
+    /*
     fun writeKooky() {
         if (abs(max) > 1) ws[0] /= max
         swerveLF.setKookySpeed(abs(ws[0]))
@@ -141,15 +175,20 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
 
     }
 
+     */
+
     /**
      * This is brand new and completely untested, ignore
      */
+    /*
     fun updateModulesKooky() {
         swerveLF.updateKooky()
         swerveRF.updateKooky()
         swerveLR.updateKooky()
         swerveRR.updateKooky()
     }
+
+     */
 
     fun maintainHeading() {
         swerveLF.maintainHeading()
@@ -236,6 +275,10 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
 
     fun getHeading(): Double {
         return gyro.heading
+    }
+
+    fun resetGyro() {
+        gyro.reset()
     }
 
     fun getPose(): Pose2d {

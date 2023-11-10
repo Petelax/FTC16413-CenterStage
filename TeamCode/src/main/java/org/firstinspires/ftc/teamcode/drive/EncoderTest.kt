@@ -11,10 +11,10 @@ import org.firstinspires.ftc.teamcode.subsystems.AbsoluteAnalogEncoder
 
 @TeleOp
 class EncoderTest: OpMode() {
-    private var lf: AbsoluteAnalogEncoder = AbsoluteAnalogEncoder()
-    private var rf: AbsoluteAnalogEncoder = AbsoluteAnalogEncoder()
-    private var lr: AbsoluteAnalogEncoder = AbsoluteAnalogEncoder()
-    private var rr: AbsoluteAnalogEncoder = AbsoluteAnalogEncoder()
+    private lateinit var lf: AbsoluteAnalogEncoder
+    private lateinit var rf: AbsoluteAnalogEncoder
+    private lateinit var lr: AbsoluteAnalogEncoder
+    private lateinit var rr: AbsoluteAnalogEncoder
 
     private lateinit var driveLF: Motor
     private lateinit var driveRF: Motor
@@ -27,10 +27,11 @@ class EncoderTest: OpMode() {
         val IDs = DrivebaseConstants.DeviceIDs
 
         telemetry = MultipleTelemetry(telemetry, FtcDashboard.getInstance().telemetry)
-        lf.init(hardwareMap, DrivebaseConstants.DeviceIDs.LF_ENCODER)
-        rf.init(hardwareMap, DrivebaseConstants.DeviceIDs.RF_ENCODER)
-        lr.init(hardwareMap, DrivebaseConstants.DeviceIDs.LR_ENCODER)
-        rr.init(hardwareMap, DrivebaseConstants.DeviceIDs.RR_ENCODER)
+
+        lf = AbsoluteAnalogEncoder(hardwareMap, IDs.LF_ENCODER)
+        rf = AbsoluteAnalogEncoder(hardwareMap, IDs.RF_ENCODER)
+        lr = AbsoluteAnalogEncoder(hardwareMap, IDs.LR_ENCODER)
+        rr = AbsoluteAnalogEncoder(hardwareMap, IDs.RR_ENCODER)
 
         driveLF = Motor(hardwareMap, IDs.LF_DRIVE_MOTOR)
         driveRF = Motor(hardwareMap, IDs.RF_DRIVE_MOTOR)
@@ -51,10 +52,10 @@ class EncoderTest: OpMode() {
         telemetry.addData("lr", lr.getVoltage())
         telemetry.addData("rr", rr.getVoltage())
 
-        telemetry.addData("lf", lf.getAngle())
-        telemetry.addData("rf", rf.getAngle())
-        telemetry.addData("lr", lr.getAngle())
-        telemetry.addData("rr", rr.getAngle())
+        telemetry.addData("lf", lf.getDegrees())
+        telemetry.addData("rf", rf.getDegrees())
+        telemetry.addData("lr", lr.getDegrees())
+        telemetry.addData("rr", rr.getDegrees())
 
         if (gamepad1.a) {
             driveLF.set(1.0)

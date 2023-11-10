@@ -6,7 +6,6 @@ import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.kinematics.DifferentialOdometry
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
-import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 
 /**
@@ -41,6 +40,18 @@ class Robot(opMode: OpMode) {
      */
     fun kinematicsDrive(speeds: ChassisSpeeds) {
         drivebase.kinematicsDrive(speeds)
+    }
+
+    fun fieldCentricDrive(strafeSpeed: Double, forwardSpeed: Double, turnSpeed: Double) {
+        drivebase.fieldCentricDrive(strafeSpeed, forwardSpeed, turnSpeed)
+    }
+
+    fun resetGyro() {
+        drivebase.resetGyro()
+    }
+
+    fun getHeading(): Double {
+        return drivebase.getHeading()
     }
 
     fun maintainHeading() {
