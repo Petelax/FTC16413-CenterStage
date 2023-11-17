@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.subsystems.kooky;
 
 import static java.lang.Math.atan2;
 import static java.lang.Math.hypot;
@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants;
+import org.firstinspires.ftc.teamcode.subsystems.AbsoluteAnalogEncoder;
+import org.firstinspires.ftc.teamcode.wpilib.MathUtil;
 
 public class KookySwerveDrivetrain {
     private static final boolean USE_WHEEL_FEEDFORWARD = false;
@@ -90,7 +92,7 @@ public class KookySwerveDrivetrain {
             if (!maintainHeading) wa = new double[]{atan2(b, c), atan2(b, d), atan2(a, d), atan2(a, c)};
         }
 
-        max = MathUtils.max(ws);
+        max = MathUtil.max(ws);
     }
 
     public void write() {
@@ -98,7 +100,7 @@ public class KookySwerveDrivetrain {
             KookySwerveModule m = modules[i];
             if (Math.abs(max) > 1) ws[i] /= max;
             m.setMotorPower(Math.abs(ws[i]) + ((USE_WHEEL_FEEDFORWARD) ? minPow * Math.signum(ws[i]) : 0));
-            m.setTargetRotation(MathUtils.norm(wa[i]));
+            m.setTargetRotation(MathUtil.norm(wa[i]));
         }
     }
 

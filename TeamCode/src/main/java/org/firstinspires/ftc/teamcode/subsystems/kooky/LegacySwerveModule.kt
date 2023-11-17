@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems
+package org.firstinspires.ftc.teamcode.subsystems.kooky
 
 import com.arcrobotics.ftclib.controller.PIDFController
 import com.arcrobotics.ftclib.geometry.Rotation2d
@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.*
 import com.qualcomm.robotcore.util.Range
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
+import org.firstinspires.ftc.teamcode.subsystems.AbsoluteAnalogEncoder
 import kotlin.math.abs
 import kotlin.math.sign
 import kotlin.math.PI

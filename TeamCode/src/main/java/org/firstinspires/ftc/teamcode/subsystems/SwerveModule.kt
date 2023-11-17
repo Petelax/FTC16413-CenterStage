@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
-import com.arcrobotics.ftclib.controller.PIDFController
 import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
-import kotlin.math.PI
+import org.firstinspires.ftc.teamcode.wpilib.WpilibPIDController
 
 class SwerveModule(hardwareMap: HardwareMap, driveMotorID: String, turnMotorID: String, encoderID: String, encoderOffset: Double = 0.0, direction: DcMotorSimple.Direction = DcMotorSimple.Direction.REVERSE) {
     private var drive: Motor
@@ -16,7 +15,8 @@ class SwerveModule(hardwareMap: HardwareMap, driveMotorID: String, turnMotorID: 
     private var currentState: SwerveModuleState = SwerveModuleState(0.0, Rotation2d(0.0))
     private var desiredState: SwerveModuleState = SwerveModuleState(0.0, Rotation2d(0.0))
     private var maintainHeading: Boolean = false
-    private var rotationController: WpilibPIDController = WpilibPIDController(0.0, 0.0, 0.0)
+    private var rotationController: WpilibPIDController =
+        WpilibPIDController(0.0, 0.0, 0.0)
 
     init {
         drive = Motor(hardwareMap, driveMotorID)

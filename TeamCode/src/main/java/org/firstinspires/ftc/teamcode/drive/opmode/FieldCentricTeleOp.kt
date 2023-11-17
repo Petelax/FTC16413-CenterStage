@@ -1,9 +1,8 @@
-package org.firstinspires.ftc.teamcode.drive
+package org.firstinspires.ftc.teamcode.drive.opmode
 
-import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
+import org.firstinspires.ftc.teamcode.subsystems.Elevator
 import org.firstinspires.ftc.teamcode.subsystems.Robot
 import kotlin.math.abs
 import kotlin.math.hypot
@@ -11,9 +10,11 @@ import kotlin.math.hypot
 @TeleOp
 class FieldCentricTeleOp: OpMode() {
     private lateinit var robot: Robot
+    private lateinit var elevator: Elevator
 
     override fun init() {
         robot = Robot(this)
+        elevator = Elevator(hardwareMap, Elevator.Mode.RAW)
 
     }
 
@@ -34,9 +35,14 @@ class FieldCentricTeleOp: OpMode() {
             robot.resetGyro()
         }
 
+        elevator.set(gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble())
+
+        telemetry.addData("ele pos", elevator.getCurrentPosition())
+        telemetry.addData("ele speed", elevator.get())
         telemetry.addData("x", "%.2f".format(x))
         telemetry.addData("y", "%.2f".format(y))
         robot.status()
+        elevator.update()
         robot.periodic()
     }
 }

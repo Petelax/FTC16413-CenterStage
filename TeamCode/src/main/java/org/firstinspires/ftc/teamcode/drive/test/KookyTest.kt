@@ -1,17 +1,20 @@
-package org.firstinspires.ftc.teamcode.drive
+package org.firstinspires.ftc.teamcode.drive.test
 
 import com.arcrobotics.ftclib.geometry.Pose2d
 import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.firstinspires.ftc.teamcode.subsystems.KookySwerveDrivetrain
+import org.firstinspires.ftc.teamcode.subsystems.kooky.KookySwerveDrivetrain
 import kotlin.math.PI
 
 @TeleOp
 class KookyTest: OpMode() {
     private lateinit var drive: KookySwerveDrivetrain
     override fun init() {
-        drive = KookySwerveDrivetrain(hardwareMap)
+        drive =
+            KookySwerveDrivetrain(
+                hardwareMap
+            )
     }
 
     override fun loop() {

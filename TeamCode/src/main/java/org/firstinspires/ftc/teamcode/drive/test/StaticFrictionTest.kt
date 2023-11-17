@@ -1,10 +1,8 @@
-package org.firstinspires.ftc.teamcode.drive
+package org.firstinspires.ftc.teamcode.drive.test
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward
-import com.arcrobotics.ftclib.hardware.motors.Motor
-import com.arcrobotics.ftclib.hardware.motors.MotorEx
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.CRServoImplEx

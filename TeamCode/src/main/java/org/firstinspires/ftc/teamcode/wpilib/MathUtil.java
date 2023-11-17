@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.wpilib;
 
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
@@ -208,4 +208,22 @@ public final class MathUtil {
         double error = MathUtil.inputModulus(expected - actual, -errorBound, errorBound);
         return Math.abs(error) < tolerance;
     }
+
+    /**
+     * Makes angle (in radians) between 0 and 2 PI
+     * @param angle The angle in radians
+     * @return normalized angle in radians
+     */
+    public static double norm(double angle) {
+        return angle % (2 * Math.PI);
+    }
+
+    public static double max(double... args){
+        double max = args[0];
+        for(double d : args){
+            if(d > max) max = d;
+        }
+        return max;
+    }
+
 }

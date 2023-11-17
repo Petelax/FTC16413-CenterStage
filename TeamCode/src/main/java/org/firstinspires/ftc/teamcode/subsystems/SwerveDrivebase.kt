@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
 import com.arcrobotics.ftclib.geometry.Pose2d
-import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.geometry.Vector2d
 import com.arcrobotics.ftclib.hardware.RevIMU
 import com.arcrobotics.ftclib.hardware.motors.Motor.Encoder
@@ -14,8 +13,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
+import org.firstinspires.ftc.teamcode.wpilib.MathUtil
 import java.text.DecimalFormat
-import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.hypot

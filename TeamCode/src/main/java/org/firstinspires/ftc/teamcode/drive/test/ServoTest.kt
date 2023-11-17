@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.drive
+package org.firstinspires.ftc.teamcode.drive.test
 
 import com.acmerobotics.dashboard.FtcDashboard
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry
@@ -70,12 +70,14 @@ class ServoTest: OpMode() {
         y = RF
         a = LR
         b = RR
-
+        */
+        /*
         up = LF
         left = RF
         down = LR
         right = RR
          */
+
 
     }
 }

@@ -22,13 +22,31 @@ class DrivebaseConstants {
         const val RR_TURN_MOTOR = "servoRR"
         const val RR_ENCODER = "encoderRR"
 
-        const val LEFT_ODOMETRY_POD = LR_DRIVE_MOTOR
-        const val RIGHT_ODOMETRY_POD = RF_DRIVE_MOTOR
+        const val ODOMETRY_POD_PARA = LR_DRIVE_MOTOR // 0
+        const val ODOMETRY_POD_PERP = RF_DRIVE_MOTOR // 3
+
+        const val ELEVATOR_LEFT = "elevatorLeft"
+        const val ELEVATOR_RIGHT = "elevatorRight"
+
+        const val ARM = "arm"
+        const val INTAKE = "intake"
+
     }
     object TurnPIDConstants {
         const val kP = 0.012
         const val kI = 0.0
         const val kD = 0.00005
+    }
+
+    object ElevatorPIDConstants {
+        const val kS = 0.0
+        const val kG = 0.0
+        const val kV = 0.0
+        const val kA = 0.0
+
+        const val kP = 0.001
+        const val kI = 0.0
+        const val kD = 0.0
     }
 
     /**
@@ -46,6 +64,9 @@ class DrivebaseConstants {
         const val MAX_ANGULAR_VELOCITY = 16.0
         private const val k = TRACK_WIDTH*0.0254/2
         private const val j = WHEEL_BASE*0.0254/2
+
+        const val ELEVATOR_HEIGHT = 2200
+        const val ELEVATOR_PPR = 384.5
 
         val LF_POS = Translation2d(k/2, j/2)
         val RF_POS = Translation2d(k/2, -j/2)
