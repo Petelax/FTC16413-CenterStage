@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.CRServoImplEx
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 
-@TeleOp
+@TeleOp(group = "test")
 class StaticFrictionTest: OpMode() {
     private lateinit var turn: CRServoImplEx
     private var voltage = 0.01

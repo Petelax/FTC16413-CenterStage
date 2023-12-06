@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.subsystems.Arm
 
-@TeleOp
+@TeleOp(group = "test")
 class ArmTest: OpMode() {
     private lateinit var arm: Arm
     override fun init() {
@@ -19,6 +19,6 @@ class ArmTest: OpMode() {
 
         telemetry.addData("arm", arm.getCurrentPosition())
         telemetry.update()
-        arm.update()
+        arm.periodic()
     }
 }

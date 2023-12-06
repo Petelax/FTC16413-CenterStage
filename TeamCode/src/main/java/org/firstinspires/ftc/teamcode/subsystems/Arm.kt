@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 
-class Arm(hardwareMap: HardwareMap) {
+class Arm(hardwareMap: HardwareMap): SubsystemBase() {
     private var motor: Motor
     private var speed = 0.0
     init {
@@ -20,7 +21,11 @@ class Arm(hardwareMap: HardwareMap) {
         this.speed = speed
     }
 
-    fun update() {
+    fun get(): Double {
+        return speed
+    }
+
+    override fun periodic() {
         motor.set(speed)
     }
 

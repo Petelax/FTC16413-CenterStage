@@ -15,7 +15,7 @@ import java.util.logging.Logger
 import kotlin.math.PI
 
 @Config
-@TeleOp
+@TeleOp(group = "test")
 class VelocityTest: OpMode() {
     private lateinit var leftEncoder: MotorEx
     private lateinit var rightEncoder: MotorEx
@@ -66,13 +66,13 @@ class VelocityTest: OpMode() {
         logger.log(Level.INFO, msg)
 
         if (gamepad1.a) {
-            drivebase.translate(0.0, 1.0)
+            //drivebase.translate(0.0, 1.0)
         }
 
         if (gamepad1.b) {
-            drivebase.turnInplace(1.0)
+            //drivebase.turnInplace(1.0)
         } else {
-            drivebase.turnInplace(0.0)
+            //drivebase.turnInplace(0.0)
         }
 
         //robot.translate(angle, magnitude)

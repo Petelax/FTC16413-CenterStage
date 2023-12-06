@@ -12,15 +12,17 @@ import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
 import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants;
 
 @Config
 public final class TwoDeadWheelLocalizer implements Localizer {
     public static class Params {
-        public double parYTicks = 0.0; // y position of the parallel encoder (in tick units)
+        public double parYTicks = 8192 / (1.377953 * Math.PI) * -6.3; // y position of the parallel encoder (in tick units)
         public double perpXTicks = 0.0; // x position of the perpendicular encoder (in tick units)
     }
 
@@ -37,8 +39,9 @@ public final class TwoDeadWheelLocalizer implements Localizer {
     private double lastRawHeadingVel, headingVelOffset;
 
     public TwoDeadWheelLocalizer(HardwareMap hardwareMap, IMU imu, double inPerTick) {
-        par = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "par")));
-        perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "perp")));
+        par = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, DrivebaseConstants.DeviceIDs.ODOMETRY_POD_PARA)));
+        perp = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, DrivebaseConstants.DeviceIDs.ODOMETRY_POD_PERP)));
+        par.setDirection(DcMotorSimple.Direction.REVERSE);
         this.imu = imu;
 
         lastParPos = par.getPositionAndVelocity().position;
@@ -50,7 +53,7 @@ public final class TwoDeadWheelLocalizer implements Localizer {
         FlightRecorder.write("TWO_DEAD_WHEEL_PARAMS", PARAMS);
     }
 
-    // see https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues/617
+    // see "https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues/617
     private double getHeadingVelocity() {
         double rawHeadingVel = imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
         if (Math.abs(rawHeadingVel - lastRawHeadingVel) > Math.PI) {

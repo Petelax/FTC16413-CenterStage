@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.subsystems.Elevator
 
-@TeleOp
+@TeleOp(group = "test")
 class ElevatorTest: OpMode() {
     private lateinit var elevator: Elevator
 
@@ -26,7 +26,7 @@ class ElevatorTest: OpMode() {
 
         elevator.set(-1.0*gamepad1.left_stick_y.toDouble())
 
-        elevator.update()
+        elevator.periodic()
         telemetry.addData("elevator", elevator.getCurrentPosition())
         telemetry.addData("speed", elevator.get())
         telemetry.update()

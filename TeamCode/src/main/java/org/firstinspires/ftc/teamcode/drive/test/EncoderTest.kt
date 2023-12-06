@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
 import org.firstinspires.ftc.teamcode.subsystems.AbsoluteAnalogEncoder
 
-@TeleOp
+@TeleOp(group = "test")
 class EncoderTest: OpMode() {
     private lateinit var lf: AbsoluteAnalogEncoder
     private lateinit var rf: AbsoluteAnalogEncoder

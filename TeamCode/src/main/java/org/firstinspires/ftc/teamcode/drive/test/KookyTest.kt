@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import org.firstinspires.ftc.teamcode.subsystems.kooky.KookySwerveDrivetrain
 import kotlin.math.PI
 
-@TeleOp
+@TeleOp(group = "test")
 class KookyTest: OpMode() {
     private lateinit var drive: KookySwerveDrivetrain
     override fun init() {

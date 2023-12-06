@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.CRServoImplEx
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.PwmControl
 
-@TeleOp
+@TeleOp(group = "test")
 class ServoTest: OpMode() {
     private lateinit var servoLF: CRServoImplEx
     private lateinit var servoRF: CRServoImplEx
@@ -76,6 +76,28 @@ class ServoTest: OpMode() {
         left = RF
         down = LR
         right = RR
+         */
+
+
+        /*
+        servo:
+        LF is LR
+        LR is LF
+        RF is RR
+        RR is RF
+
+        drive:
+        LR = LF
+        RF = RF
+        RR = RR
+        LF = LR
+
+        encoder:
+        LF = 1
+        RF = 3
+        RR = 2
+        LR = 0
+
          */
 
 

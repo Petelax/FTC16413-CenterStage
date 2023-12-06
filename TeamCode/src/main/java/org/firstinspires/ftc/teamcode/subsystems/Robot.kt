@@ -21,19 +21,6 @@ class Robot(opMode: OpMode) {
         drivebase = SwerveDrivebase(opMode.hardwareMap)
     }
 
-    fun translate(angle: Double, speed: Double) {
-        drivebase.translate(angle, speed)
-
-    }
-
-    fun turnInplace(speed: Double) {
-        drivebase.turnInplace(speed)
-    }
-
-    fun drive(angle: Double, translateSpeed: Double, turnSpeed: Double) {
-        drivebase.translateTurn(angle, translateSpeed, turnSpeed)
-    }
-
     /**
      * The only good one
      * @param speeds the x velocity, y velocity, and angular velocity of the chassis

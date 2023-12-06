@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems
 
+import com.acmerobotics.roadrunner.PoseVelocity2d
+import com.acmerobotics.roadrunner.Time
+import com.acmerobotics.roadrunner.Twist2dDual
+import com.arcrobotics.ftclib.command.SubsystemBase
 import com.arcrobotics.ftclib.geometry.Pose2d
+import com.arcrobotics.ftclib.geometry.Rotation2d
 import com.arcrobotics.ftclib.geometry.Vector2d
 import com.arcrobotics.ftclib.hardware.RevIMU
 import com.arcrobotics.ftclib.hardware.motors.Motor.Encoder
@@ -9,24 +14,30 @@ import com.arcrobotics.ftclib.kinematics.wpilibkinematics.ChassisSpeeds
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveDriveKinematics
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.qualcomm.hardware.lynx.LynxModule
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
+import com.qualcomm.robotcore.hardware.IMU
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
+import org.firstinspires.ftc.teamcode.constants.Units
+import org.firstinspires.ftc.teamcode.rr.TwoDeadWheelLocalizer
 import org.firstinspires.ftc.teamcode.wpilib.MathUtil
 import java.text.DecimalFormat
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.hypot
 import kotlin.math.sign
 
 
-class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
+class SwerveDrivebase(hardwareMap: HardwareMap): SubsystemBase() {
     private var swerveLF: SwerveModule
     private var swerveRF: SwerveModule
     private var swerveLR: SwerveModule
     private var swerveRR: SwerveModule
-    private var gyro: RevIMU
+    //private var gyro: RevIMU
     private var kinematics = SwerveDriveKinematics(
         DrivebaseConstants.Measurements.LF_POS,
         DrivebaseConstants.Measurements.RF_POS,
@@ -36,15 +47,20 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
     private val f: DecimalFormat = DecimalFormat("0.000")
     private var encoderLeft: Encoder
     private var encoderRight: Encoder
-    private var odometry: DifferentialOdometry
+    private var localizer: TwoDeadWheelLocalizer
+    private var pose: com.acmerobotics.roadrunner.Pose2d = com.acmerobotics.roadrunner.Pose2d(0.0, 0.0, 0.0)
+    private var poseVelocity: PoseVelocity2d = PoseVelocity2d(com.acmerobotics.roadrunner.Vector2d(0.0, 0.0), 0.0)
+    private var poseAccel: PoseVelocity2d = PoseVelocity2d(com.acmerobotics.roadrunner.Vector2d(0.0, 0.0), 0.0)
+    private var lastVel = poseVelocity
+    private var lastTime = System.nanoTime()
 
-    private var ws = Array(4) { 0.0 }
-    private var wa = Array(4) { 0.0 }
-    private var max: Double = 0.0
-    private var R: Double = 0.0
     private var maintainHeading: Boolean = false
 
-    private lateinit var hubs: List<LynxModule>
+    private var hubs: List<LynxModule>
+
+    private val INCHES_PER_TICK = (1.377953 * PI) / 8192
+    private var imu: IMU
+    private var imuOffset: Double = 0.0
 
     init {
         val IDs = DrivebaseConstants.DeviceIDs
@@ -55,40 +71,35 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
             hub.bulkCachingMode = LynxModule.BulkCachingMode.AUTO
         }
 
+        /*
         gyro = RevIMU(hardwareMap)
         gyro.init()
         gyro.reset()
+         */
 
         swerveLF = SwerveModule(hardwareMap, IDs.LF_DRIVE_MOTOR, IDs.LF_TURN_MOTOR, IDs.LF_ENCODER, DrivebaseConstants.Measurements.LF_OFFSET, direction = DcMotorSimple.Direction.FORWARD)
         swerveRF = SwerveModule(hardwareMap, IDs.RF_DRIVE_MOTOR, IDs.RF_TURN_MOTOR, IDs.RF_ENCODER, DrivebaseConstants.Measurements.RF_OFFSET)
         swerveLR = SwerveModule(hardwareMap, IDs.LR_DRIVE_MOTOR, IDs.LR_TURN_MOTOR, IDs.LR_ENCODER, DrivebaseConstants.Measurements.LR_OFFSET, direction = DcMotorSimple.Direction.FORWARD)
         swerveRR = SwerveModule(hardwareMap, IDs.RR_DRIVE_MOTOR, IDs.RR_TURN_MOTOR, IDs.RR_ENCODER, DrivebaseConstants.Measurements.RR_OFFSET)
 
+        /* THIS IS DANGER */
+        swerveRF.setPID(0.009, DrivebaseConstants.TurnPIDConstants.kI, DrivebaseConstants.TurnPIDConstants.kD)
+
         encoderLeft = swerveLR.getDriveEncoder()
-        encoderRight = swerveRF.getDriveEncoder()
+        encoderRight = swerveRR.getDriveEncoder()
 
-        odometry = DifferentialOdometry(
-            { encoderLeft.position.toDouble() },
-            { encoderRight.position.toDouble() },
-            DrivebaseConstants.Measurements.TRACK_WIDTH
+        imu = hardwareMap.get<IMU>(IMU::class.java, "imu")
+        val parameters = IMU.Parameters(
+            RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+            )
         )
+        imu.initialize(parameters)
 
-        R = hypot(DrivebaseConstants.Measurements.TRACK_WIDTH, DrivebaseConstants.Measurements.WHEEL_BASE)
-    }
+        imu.resetYaw()
 
-    /**
-     * Translate drivebase
-     */
-    fun translate(angle: Double, speed: Double) {
-        swerveLF.setAngle(angle)
-        swerveRF.setAngle(angle)
-        swerveLR.setAngle(angle)
-        swerveRR.setAngle(angle)
+        localizer = TwoDeadWheelLocalizer(hardwareMap, imu, INCHES_PER_TICK)
 
-        swerveLF.setSpeed(speed)
-        swerveRF.setSpeed(speed)
-        swerveLR.setSpeed(speed)
-        swerveRR.setSpeed(speed)
     }
 
     /**
@@ -104,7 +115,7 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
     }
 
     fun fieldCentricDrive(strafeSpeed: Double, forwardSpeed: Double, turnSpeed: Double) {
-        val heading = gyro.heading
+        val heading = getHeading()
         val vx = MathUtil.clamp(strafeSpeed,-1.0, 1.0)
         val vy = MathUtil.clamp(forwardSpeed,-1.0, 1.0)
         var omega = MathUtil.clamp(turnSpeed,-1.0, 1.0)
@@ -128,67 +139,6 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
         swerveRR.setSwerveModuleState(moduleStates[3])
     }
 
-    /**
-     * This is brand new and completely untested, ignore
-     */
-    fun setKooky(pose: Pose2d) {
-        val WHEEL_BASE = DrivebaseConstants.Measurements.WHEEL_BASE
-        val TRACK_WIDTH = DrivebaseConstants.Measurements.TRACK_WIDTH
-
-        val x = pose.x
-        val y = pose.y
-        val head = pose.heading
-
-        val a: Double = x - head * (WHEEL_BASE / R)
-        val b: Double = x + head * (WHEEL_BASE / R)
-        val c: Double = y - head * (TRACK_WIDTH / R)
-        val d: Double = y + head * (TRACK_WIDTH / R)
-
-        ws = arrayOf(hypot(b, c), hypot(b, d), hypot(a, d), hypot(a, c))
-        if (!maintainHeading) wa =
-            arrayOf(atan2(b, c), atan2(b, d), atan2(a, d), atan2(a, c))
-
-        max = ws.max()
-    }
-
-    /**
-     * This is brand new and completely untested, ignore
-     */
-    /*
-    fun writeKooky() {
-        if (abs(max) > 1) ws[0] /= max
-        swerveLF.setKookySpeed(abs(ws[0]))
-        swerveLF.setKookyAngle(Rotation2d(wa[0].mod(2 * PI)))
-
-        if (abs(max) > 1) ws[1] /= max
-        swerveRF.setKookySpeed(abs(ws[1]))
-        swerveRF.setKookyAngle(Rotation2d(wa[1].mod(2 * PI)))
-
-        if (abs(max) > 1) ws[2] /= max
-        swerveLR.setKookySpeed(abs(ws[2]))
-        swerveLR.setKookyAngle(Rotation2d(wa[2].mod(2 * PI)))
-
-        if (abs(max) > 1) ws[3] /= max
-        swerveRR.setKookySpeed(abs(ws[3]))
-        swerveRR.setKookyAngle(Rotation2d(wa[3].mod(2 * PI)))
-
-    }
-
-     */
-
-    /**
-     * This is brand new and completely untested, ignore
-     */
-    /*
-    fun updateModulesKooky() {
-        swerveLF.updateKooky()
-        swerveRF.updateKooky()
-        swerveLR.updateKooky()
-        swerveRR.updateKooky()
-    }
-
-     */
-
     fun maintainHeading() {
         swerveLF.maintainHeading()
         swerveRF.maintainHeading()
@@ -197,69 +147,17 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
         maintainHeading = true
     }
 
-    fun turnInplace(speed: Double) {
-        swerveLF.setAngle(45.0)
-        swerveRF.setAngle(135.0)
+    fun lock() {
+        swerveLF.setAngle(-45.0)
+        swerveRF.setAngle(45.0)
         swerveLR.setAngle(-45.0)
-        swerveRR.setAngle(-135.0)
+        swerveRR.setAngle(45.0)
 
-        swerveLF.setSpeed(speed)
-        swerveRF.setSpeed(speed)
-        swerveLR.setSpeed(speed)
-        swerveRR.setSpeed(speed)
-
+        swerveLF.setSpeed(0.0)
+        swerveRF.setSpeed(0.0)
+        swerveLR.setSpeed(0.0)
+        swerveRR.setSpeed(0.0)
     }
-
-    fun translateTurn(angle: Double, translateSpeed: Double, turnSpeed: Double) {
-        val turnAngle: Double = turnSpeed * 45.0
-
-        if (closestAngle(angle, 135.0) >= 90.0) {
-            swerveLF.setAngle(angle + turnAngle)
-        } else {
-            swerveLF.setAngle(angle - turnAngle)
-        }
-
-        if (closestAngle(angle, 225.0) >= 90.0) {
-            swerveLR.setAngle(angle + turnAngle)
-        } else {
-            swerveLR.setAngle(angle - turnAngle)
-        }
-
-        if (closestAngle(angle, 45.0) > 90.0) {
-            swerveRF.setAngle(angle + turnAngle)
-        } else {
-            swerveRF.setAngle(angle - turnAngle)
-        }
-
-        if (closestAngle(angle, 315.0) > 90.0) {
-            swerveRR.setAngle(angle + turnAngle)
-        } else {
-            swerveRR.setAngle(angle - turnAngle)
-        }
-
-        swerveLF.setSpeed(translateSpeed)
-        swerveRF.setSpeed(translateSpeed)
-        swerveLR.setSpeed(translateSpeed)
-        swerveRR.setSpeed(translateSpeed)
-
-    }
-
-    fun drive(angle: Double, translateSpeed: Double, turnSpeed: Double) {
-        if ((translateSpeed == 0.0) && (turnSpeed != 0.0)) {
-            turnInplace(turnSpeed)
-        } else {
-            translateTurn(angle, translateSpeed, turnSpeed)
-        }
-    }
-
-    private fun closestAngle(a: Double, b: Double): Double {
-        var dir: Double = b.mod(360.0) - a.mod(360.0)
-        if (abs(dir) > 180.0) {
-            dir = -(sign(dir) * 360.0) + dir
-        }
-        return dir
-    }
-
 
     fun status(): String {
         val lf = "angle: " + f.format(swerveLF.getAngle()) + ", desiredAngle: " + f.format(swerveLF.getDesiredAngle()) + ", speed: " + f.format(swerveLF.getSpeed()) + ", turnPower: " + f.format(swerveLF.getTurnPower())
@@ -272,32 +170,64 @@ class SwerveDrivebase(hardwareMap: HardwareMap): Drivebase() {
         return status
     }
 
+    /**
+     * @return degrees
+     */
     fun getHeading(): Double {
-        return gyro.heading
+        return ((imu.robotYawPitchRollAngles.getYaw(AngleUnit.DEGREES) + imuOffset) * 1.0) % (360)
+    }
+
+    fun getHeadingRad(): Double {
+        return imu.robotYawPitchRollAngles.getYaw(AngleUnit.RADIANS)
     }
 
     fun resetGyro() {
-        gyro.reset()
+        imu.resetYaw()
     }
 
     fun getPose(): Pose2d {
-        return odometry.pose
+        return Pose2d(pose.position.x, pose.position.y, Rotation2d(Units.degreesToRadians(getHeading())))
+    }
+
+    fun getPoseVelocity(): PoseVelocity2d {
+        return poseVelocity
+    }
+
+    fun getPoseAccel(): PoseVelocity2d {
+        val currentTime = System.nanoTime()
+        poseVelocity = updatePoseEstimate()
+        val x = (poseVelocity.linearVel.x-lastVel.linearVel.x) / (currentTime-lastTime)
+        val y = (poseVelocity.linearVel.y-lastVel.linearVel.y) / (currentTime-lastTime)
+        val w = (poseVelocity.linearVel.y-lastVel.angVel) / (currentTime-lastTime)
+        poseAccel = PoseVelocity2d(com.acmerobotics.roadrunner.Vector2d(x, y), w)
+        lastTime = currentTime
+        return poseAccel
     }
 
     fun setPose(pose2d: Pose2d) {
-        odometry.updatePose(pose2d)
+        pose = com.acmerobotics.roadrunner.Pose2d(pose2d.x, pose2d.y, pose2d.rotation.degrees)
+        imuOffset = pose2d.rotation.degrees
     }
 
     fun getAngularVelocity(): AngularVelocity {
-        return gyro.revIMU.angularVelocity
+        //return gyro.revIMU.angularVelocity
+        return imu.getRobotAngularVelocity(AngleUnit.DEGREES)
     }
 
-    fun periodic() {
-        odometry.updatePose()
+    override fun periodic() {
+        poseVelocity = updatePoseEstimate()
         swerveLF.update()
         swerveLR.update()
         swerveRF.update()
         swerveRR.update()
+        lastVel = poseVelocity
+    }
+
+    private fun updatePoseEstimate(): PoseVelocity2d {
+        val twist: Twist2dDual<Time> = localizer.update()
+        pose = pose.plus(twist.value())
+
+        return twist.velocity().value()
     }
 
 }

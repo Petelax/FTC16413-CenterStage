@@ -7,7 +7,7 @@ import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.hypot
 
-@TeleOp
+@TeleOp(group = "test")
 class RobotTest: OpMode() {
     private lateinit var robot: Robot
 
@@ -23,7 +23,7 @@ class RobotTest: OpMode() {
         val magnitude: Double = hypot(x, y)
         //robot.translate(angle, magnitude)
         //robot.turnInplace(gamepad1.left_stick_x.toDouble())
-        robot.translate(angle, magnitude)
+        //robot.translate(angle, magnitude)
 
         robot.status()
         robot.periodic()

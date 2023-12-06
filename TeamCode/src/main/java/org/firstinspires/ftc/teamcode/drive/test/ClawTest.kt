@@ -5,7 +5,7 @@ import com.arcrobotics.ftclib.hardware.SimpleServo
 import com.qualcomm.robotcore.eventloop.opmode.OpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 
-@TeleOp
+@TeleOp(group = "test")
 class ClawTest: OpMode() {
     private lateinit var left: SimpleServo
     private lateinit var right: SimpleServo
@@ -19,12 +19,12 @@ class ClawTest: OpMode() {
 
     override fun loop() {
         if (gamepad1.a) {
-            left.position = 0.85
-            right.position = -0.85
+            left.position = 0.8
+            right.position = 0.2
         }
         if (gamepad1.b) {
-            left.position = -0.85
-            right.position = 0.85
+            left.position = 0.2
+            right.position = 0.8
         }
         if (gamepad1.x) {
             left.position = 0.0

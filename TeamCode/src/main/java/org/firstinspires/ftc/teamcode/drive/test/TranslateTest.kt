@@ -17,7 +17,7 @@ class TranslateTest: OpMode() {
         val angle = atan2(gamepad1.left_stick_y.toDouble(), gamepad1.left_stick_x.toDouble())
         telemetry.addData("angle", angle)
         val power = gamepad1.right_trigger.toDouble() - gamepad1.left_trigger.toDouble()
-        drive.translate(angle, power)
+        //drive.translate(angle, power)
         telemetry.update()
     }
 }

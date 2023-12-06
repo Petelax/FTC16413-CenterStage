@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.subsystems.SwerveModule
 import kotlin.math.PI
 import kotlin.math.atan2
 
-@TeleOp
+@TeleOp(group = "test")
 class SwerveModuleTest: OpMode() {
     private lateinit var LF: SwerveModule
     override fun init() {

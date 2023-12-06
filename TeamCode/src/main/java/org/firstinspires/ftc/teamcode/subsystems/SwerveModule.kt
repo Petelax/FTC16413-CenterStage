@@ -5,7 +5,9 @@ import com.arcrobotics.ftclib.hardware.motors.Motor
 import com.arcrobotics.ftclib.kinematics.wpilibkinematics.SwerveModuleState
 import com.qualcomm.robotcore.hardware.*
 import org.firstinspires.ftc.teamcode.constants.DrivebaseConstants
+import org.firstinspires.ftc.teamcode.wpilib.SlewRateLimiter
 import org.firstinspires.ftc.teamcode.wpilib.WpilibPIDController
+import kotlin.math.abs
 
 class SwerveModule(hardwareMap: HardwareMap, driveMotorID: String, turnMotorID: String, encoderID: String, encoderOffset: Double = 0.0, direction: DcMotorSimple.Direction = DcMotorSimple.Direction.REVERSE) {
     private var drive: Motor
@@ -17,6 +19,7 @@ class SwerveModule(hardwareMap: HardwareMap, driveMotorID: String, turnMotorID: 
     private var maintainHeading: Boolean = false
     private var rotationController: WpilibPIDController =
         WpilibPIDController(0.0, 0.0, 0.0)
+    private var slewRateLimiter: SlewRateLimiter
 
     init {
         drive = Motor(hardwareMap, driveMotorID)
@@ -38,6 +41,8 @@ class SwerveModule(hardwareMap: HardwareMap, driveMotorID: String, turnMotorID: 
 
         rotationController.enableContinuousInput(0.0, 360.0)
 
+        slewRateLimiter = SlewRateLimiter(DrivebaseConstants.SlewRates.POSITIVE_RATE_LIMIT, DrivebaseConstants.SlewRates.NEGATIVE_RATE_LIMIT, 0.0)
+
     }
 
     /**
@@ -50,16 +55,22 @@ class SwerveModule(hardwareMap: HardwareMap, driveMotorID: String, turnMotorID: 
 
     fun update() {
         currentState.angle = Rotation2d(encoder.getRadians())
+        //currentState.speedMetersPerSecond = drive.get()*DrivebaseConstants.Measurements.MAX_VELOCITY
         currentState.speedMetersPerSecond = drive.get()*DrivebaseConstants.Measurements.MAX_VELOCITY
 
-        desiredState = SwerveModuleState.optimize(desiredState,currentState.angle)
+        desiredState = SwerveModuleState.optimize(desiredState, currentState.angle)
+
+        if (!maintainHeading) {maintainHeading = abs(desiredState.speedMetersPerSecond) < 0.001}
 
         if (maintainHeading) {
             turn.power = 0.0
             drive.set(0.0)
         } else {
             turn.power = rotationController.calculate(currentState.angle.degrees, desiredState.angle.degrees)
-            drive.set(desiredState.speedMetersPerSecond/DrivebaseConstants.Measurements.MAX_VELOCITY)
+            drive.set(
+                slewRateLimiter.calculate(desiredState.speedMetersPerSecond/DrivebaseConstants.Measurements.MAX_VELOCITY)
+                //desiredState.speedMetersPerSecond/DrivebaseConstants.Measurements.MAX_VELOCITY
+            )
 
         }
     }
@@ -102,6 +113,10 @@ class SwerveModule(hardwareMap: HardwareMap, driveMotorID: String, turnMotorID: 
 
     fun getSpeed(): Double {
         return currentState.speedMetersPerSecond
+    }
+
+    fun setPID(kP: Double, kI: Double, kD: Double) {
+        rotationController.setPID(kP, kI, kD)
     }
 
 }

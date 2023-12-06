@@ -11,7 +11,7 @@ import kotlin.math.hypot
 /**
  * Actual main teleop code i've been testing
  */
-@TeleOp
+@TeleOp(group = "test")
 class InverseKinematicsTest: OpMode() {
     private lateinit var robot: Robot
 
